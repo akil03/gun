@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour {
     public GameObject mainMenu, inGameHUD, bossUI;
 
     public Text ScoreTxt,levelTxt;
-    public Image levelPanel;
+    public Image levelPanel,bossHPPanel;
     public GameObject player;
     public static string gameState;
     public static int score, highScore=0, currentLevel=0;
@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void ResetVariables(){
+        PlayerPrefs.DeleteAll();
         currentLevel = PlayerPrefs.GetInt("currentLevel");
         highScore = PlayerPrefs.GetInt("highScore");
         gameState = "MainMenu";
@@ -77,7 +78,8 @@ public class GameManager : MonoBehaviour {
     }
 
     public void UpdateBlocks(int blockNo){
-        float fillValue = blockNo / PathSpawner.instance.levels[currentLevel].blockCount;
+        float fillValue = ((float)blockNo) / PathSpawner.instance.levels[currentLevel].blockCount;
+        print(fillValue);
         levelPanel.transform.DOScaleX(fillValue, 2);
     }
 
@@ -86,7 +88,7 @@ public class GameManager : MonoBehaviour {
     {
         float fillValue = (float)botHitCount / (float)PathSpawner.instance.levels[currentLevel].bossHP;
         print(fillValue);
-        levelPanel.transform.DOScaleX(fillValue, 2);
+        bossHPPanel.transform.DOScaleX(fillValue, 0.5f);
     }
 
 

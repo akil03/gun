@@ -33,30 +33,34 @@ public class PathSpawner : MonoBehaviour {
 
 
         if(currentBlock==levels[GameManager.currentLevel].blockCount){
-            if (bossHitCount > levels[GameManager.currentLevel].bossHP)
+            if (!isBossLevel)
             {
-                currentBlock = 0;
-                isBossLevel = false;
-                GameManager.instance.bossUI.SetActive(false);
-                GameManager.currentLevel++;
-                GameManager.instance.UpdateCurrentLevel();
+                isBossLevel = true;
+                GameManager.instance.bossUI.SetActive(true);
+                bossHitCount = levels[GameManager.currentLevel].bossHP;
             }
             else
             {
-                bossHitCount++;
-                GameManager.instance.UpdateBossHP(bossHitCount);
+                if (bossHitCount == 0)
+                {
+                    currentBlock = 0;
+                    isBossLevel = false;
+                    GameManager.instance.bossUI.SetActive(false);
+                    GameManager.currentLevel++;
+                    GameManager.instance.UpdateCurrentLevel();
+                }
+                else
+                {
+                    bossHitCount--;
+                    GameManager.instance.UpdateBossHP(bossHitCount);
+                }
             }
-
-            if(!isBossLevel){
-                isBossLevel = true;
-                GameManager.instance.bossUI.SetActive(true);
-                bossHitCount = 0;
-            }
-
-
-        }else{
+        }
+        else{
             currentBlock++;
         }
+        print(currentBlock + "   " + levels[GameManager.currentLevel].blockCount);
+
         GameManager.instance.UpdateBlocks(currentBlock);
         Spawn();
 
@@ -91,11 +95,12 @@ public class PathSpawner : MonoBehaviour {
         }
 
         if(isBossLevel){
-            GameObject boss = Instantiate(levels[GameManager.currentLevel].boss, Go.GetComponent<LevelProperties>().Enemies[0].transform);
+            GameObject boss = Instantiate(levels[GameManager.currentLevel].boss, levelBlocks[1].GetComponent<LevelProperties>().Enemies[0].transform);
             boss.transform.localScale = Vector3.one;
+            boss.transform.localRotation = Quaternion.identity;
             boss.transform.SetParent (boss.transform.parent.parent);
-            Destroy(Go.GetComponent<LevelProperties>().Enemies[0].gameObject);
-            Go.GetComponent<LevelProperties>().Enemies[0] = boss.GetComponent<BotBehavior>();
+            Destroy(levelBlocks[1].GetComponent<LevelProperties>().Enemies[0].gameObject);
+            levelBlocks[1].GetComponent<LevelProperties>().Enemies[0] = boss.GetComponent<BotBehavior>();
         }
 
         levelBlocks.Add(Go);
