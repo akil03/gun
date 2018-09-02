@@ -57,6 +57,6 @@ public class Projectile : MonoBehaviour {
     private void OnDestroy()
     {
         if (!isTargetHit)
-            PathSpawner.instance.Levels[0].GetComponent<LevelProperties>().Enemies[0].SetAim();
+            PathSpawner.instance.levelBlocks[0].GetComponent<LevelProperties>().Enemies[0].SetAim();
     }
 }

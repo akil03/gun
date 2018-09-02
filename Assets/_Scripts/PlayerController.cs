@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour {
     public GameObject bullet;
     public float loopDuration;
     public bool isFired=false;
-    int score;
+
     private void Awake()
     {
         instance = this;
@@ -24,10 +24,25 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetMouseButtonDown(0) && !isFired)
+        
+        if (Input.GetMouseButtonDown(0))
         {
-            isFired = true;
-            Instantiate(bullet, crossHairPoint.position, crossHairPoint.rotation);
+            switch(GameManager.gameState){
+                case "MainMenu":
+                    GameManager.instance.StartGame();
+                    break;
+                case "InGame":
+                    if(!isFired){
+                        isFired = true;
+                        Instantiate(bullet, crossHairPoint.position, crossHairPoint.rotation);
+                    }
+                    break;
+                case "Result":
+                    GameManager.instance.ReloadLevel();
+                    break;
+            }
+
+
             
         }
 	}
@@ -96,9 +111,9 @@ public class PlayerController : MonoBehaviour {
         {
             transform.DORotate(targetRotation, 0.3f, RotateMode.Fast).OnComplete(() => {
                 TakeAim();
-                PathSpawner.instance.Levels[0].GetComponent<LevelProperties>().Enemies[0].SetBotPosition();
+                PathSpawner.instance.levelBlocks[0].GetComponent<LevelProperties>().Enemies[0].SetBotPosition();
             });
-            PathSpawner.instance.Spawn();
+            PathSpawner.instance.UpdateLevel();
         });
     }
 
@@ -106,13 +121,12 @@ public class PlayerController : MonoBehaviour {
     Vector3 targetPosition, targetRotation;
     public void ReachNextPosition(Transform target)
     {
-        score++;
-        targetPosition = PathSpawner.instance.Levels[1].transform.position;
-        targetRotation = PathSpawner.instance.Levels[1].transform.rotation.eulerAngles;
+
+        targetPosition = PathSpawner.instance.levelBlocks[1].transform.position;
+        targetRotation = PathSpawner.instance.levelBlocks[1].transform.rotation.eulerAngles;
        
         HoldFire();
-        
-        GameManager.instance.UpdateScore(score);
+      
         
     }
 
@@ -128,11 +142,12 @@ public class PlayerController : MonoBehaviour {
     {
         AimLine.SetActive(false);
         Pistol.SetActive(false);
+        GameManager.gameState = "Result";
         
         playerMesh.DOMove(deadPosition.position, 0.5f, false).OnComplete(()=>
         {
-            mainCam.DOMove(PathSpawner.instance.Levels[0].GetComponent<LevelProperties>().Enemies[0].endCamPoint.position, 0.3f);
-            mainCam.DORotate(PathSpawner.instance.Levels[0].GetComponent<LevelProperties>().Enemies[0].endCamPoint.rotation.eulerAngles, 0.1f);
+            mainCam.DOMove(PathSpawner.instance.levelBlocks[0].GetComponent<LevelProperties>().Enemies[0].endCamPoint.position, 0.3f);
+            mainCam.DORotate(PathSpawner.instance.levelBlocks[0].GetComponent<LevelProperties>().Enemies[0].endCamPoint.rotation.eulerAngles, 0.1f);
         });
         playerMesh.DORotate(deadPosition.rotation.eulerAngles, 0.3f, RotateMode.Fast);
         GameManager.instance.DelayedReload(3);
